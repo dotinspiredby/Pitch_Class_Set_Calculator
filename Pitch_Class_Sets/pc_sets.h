@@ -20,17 +20,18 @@ public:
 
 private:
 	set <int> chord;
-	vector <int> dists;
 	vector <int> prime_form;
 	vector <int> ic_vector;
 	int wrap_around_interval;
-	void CalculateDistances(const set <int>& chord);
-	void CalulatePrimeForm(const vector <int>& dists);
+	vector <int> CalculateDistances(const set <int>& chord);
+	void CalulatePrimeForm(vector <int> dists);
 	void IC();
 };
 
-void PCSetCalculator::CalculateDistances(const set <int>& chord) {
+vector <int> PCSetCalculator::CalculateDistances(const set <int>& chord) {
 	set <int>::iterator it;
+	vector <int> dists;
+	dists.reserve(chord.size());
 	for (it = chord.begin(); it != chord.end(); ++it) {
 		if (it == --chord.end()) {
 			dists.push_back(abs(abs(*it - *chord.begin()) - 12));
@@ -39,9 +40,10 @@ void PCSetCalculator::CalculateDistances(const set <int>& chord) {
 			dists.push_back(abs(*it - *next(it)));
 		}
 	}
+	return dists;
 }
 
-void PCSetCalculator::CalulatePrimeForm(const vector <int>& dists_) {
+void PCSetCalculator::CalulatePrimeForm(vector <int> dists_) {
 	set <int> types_of_pc = { dists_.begin(), dists_.end() };
 	wrap_around_interval = *types_of_pc.rbegin();
 
@@ -59,8 +61,8 @@ void PCSetCalculator::CalulatePrimeForm(const vector <int>& dists_) {
 		vector <int> right_dir;
 		right_dir.insert(right_dir.end(), it + 1, dists_.end());
 		right_dir.insert(right_dir.end(), dists_.begin(), it + 1);
-		temp_permutations.insert(left_dir);
-		temp_permutations.insert(right_dir);
+		temp_permutations.insert(move(left_dir));
+		temp_permutations.insert(move(right_dir));
 		++it;
 		++rit;
 	}
@@ -86,7 +88,7 @@ void PCSetCalculator::IC() {
 
 PCSetCalculator::PCSetCalculator(const set <int>& input_chord) :
 	chord(input_chord), prime_form(chord.size()), ic_vector(6, 0) {
-	CalculateDistances(chord); CalulatePrimeForm(dists); IC();
+	 CalulatePrimeForm(CalculateDistances(chord)); IC();
 }
 
 int PCSetCalculator::WrapAroudInterval() const { return wrap_around_interval; }
