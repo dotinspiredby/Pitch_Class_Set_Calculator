@@ -21,33 +21,27 @@ public:
 private:
 	set <int> chord;
 	vector <int> dists;
-	vector <int> optimal;
 	vector <int> prime_form;
 	vector <int> ic_vector;
 	int wrap_around_interval;
 	void CalculateDistances(const set <int>& chord);
-	void IdentifyOptimal(const vector <int>& dists_);
 	void CalulatePrimeForm(const vector <int>& dists);
 	void IC();
 };
 
 void PCSetCalculator::CalculateDistances(const set <int>& chord) {
 	set <int>::iterator it;
-	int x, y;
 	for (it = chord.begin(); it != chord.end(); ++it) {
-		x = *it;
 		if (it == --chord.end()) {
-			y = *chord.begin();
-			dists.push_back(abs(abs(x - y) - 12));
+			dists.push_back(abs(abs(*it - *chord.begin()) - 12));
 		}
 		else {
-			y = *next(it);
-			dists.push_back(abs(x - y));
+			dists.push_back(abs(*it - *next(it)));
 		}
 	}
 }
 
-void PCSetCalculator::IdentifyOptimal(const vector <int>& dists_) {
+void PCSetCalculator::CalulatePrimeForm(const vector <int>& dists_) {
 	set <int> types_of_pc = { dists_.begin(), dists_.end() };
 	wrap_around_interval = *types_of_pc.rbegin();
 
@@ -70,14 +64,11 @@ void PCSetCalculator::IdentifyOptimal(const vector <int>& dists_) {
 		++it;
 		++rit;
 	}
-	optimal = *temp_permutations.begin();
-}
 
-void PCSetCalculator::CalulatePrimeForm(const vector <int>& dists) {
 	int s = 0;
-	for (size_t i = 0; i < dists.size(); ++i) {
+	for (size_t i = 0; i < (*temp_permutations.begin()).size(); ++i) {
 		prime_form[i] = s;
-		s += dists[i];
+		s += (*temp_permutations.begin())[i];
 	}
 }
 
@@ -95,7 +86,7 @@ void PCSetCalculator::IC() {
 
 PCSetCalculator::PCSetCalculator(const set <int>& input_chord) :
 	chord(input_chord), prime_form(chord.size()), ic_vector(6, 0) {
-	CalculateDistances(chord); IdentifyOptimal(dists); CalulatePrimeForm(optimal); IC();
+	CalculateDistances(chord); CalulatePrimeForm(dists); IC();
 }
 
 int PCSetCalculator::WrapAroudInterval() const { return wrap_around_interval; }
